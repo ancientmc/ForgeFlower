@@ -1,0 +1,26 @@
+From 75d8a549eb33d3d6071186aa2f9613288c923899 Mon Sep 17 00:00:00 2001
+From: Curle <curle@gemwire.uk>
+Date: Sun, 12 Apr 2020 00:53:30 +0100
+Subject: [PATCH] Change build.gradle to reflect rebranding from fernflower to
+ forgeflower
+
+
+diff --git a/build.gradle b/build.gradle
+index cf3d8ec..a57d56e 100644
+--- a/build.gradle
++++ b/build.gradle
+@@ -3,9 +3,9 @@ apply plugin: 'idea'
+ apply plugin: 'maven'
+ apply plugin: 'java'
+ 
+-version = "2.0-SNAPSHOT"
++version = "0.2.3-SNAPSHOT"
+ group = "net.minecraftforge" //not sure if we shoulkd publish under this name, but it's our fork so meh
+-archivesBaseName = "fernflower"
++archivesBaseName = "forgeflower"
+ 
+ sourceCompatibility = '1.6'
+ targetCompatibility = '1.6'
+-- 
+2.21.0.windows.1
+
