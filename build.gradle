@@ -67,7 +67,7 @@ project(':ForgeFlower9') {
         options.encoding = 'utf-8'
         sourceCompatibility = 9
         targetCompatibility = 9
-        options.compilerArgs.addAll(['--release', '9'])
+        //options.compilerArgs.addAll(['--release', '9'])
     }
 }
 
