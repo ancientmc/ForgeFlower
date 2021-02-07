@@ -1,0 +1,69 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Curle <curle@gemwire.uk>
+Date: Thu, 17 Dec 2020 19:14:18 +0000
+Subject: [PATCH] Add cfg option
+
+
+diff --git a/src/org/jetbrains/java/decompiler/main/decompiler/ConsoleDecompiler.java b/src/org/jetbrains/java/decompiler/main/decompiler/ConsoleDecompiler.java
+index 06f3b1d3b135a30441cb68e2a7a33eddeaa40a1c..6e68a3630edcc49c1291c6ef69decaf1650e1d2a 100644
+--- a/src/org/jetbrains/java/decompiler/main/decompiler/ConsoleDecompiler.java
++++ b/src/org/jetbrains/java/decompiler/main/decompiler/ConsoleDecompiler.java
+@@ -23,9 +23,13 @@ import org.jetbrains.java.decompiler.main.extern.IResultSaver;
+ import org.jetbrains.java.decompiler.util.InterpreterUtil;
+ 
+ import java.io.*;
++import java.nio.file.Files;
++import java.nio.file.Path;
++import java.nio.file.Paths;
+ import java.util.*;
+ import java.util.jar.JarOutputStream;
+ import java.util.jar.Manifest;
++import java.util.stream.Stream;
+ import java.util.zip.ZipEntry;
+ import java.util.zip.ZipFile;
+ import java.util.zip.ZipOutputStream;
+@@ -34,6 +38,44 @@ public class ConsoleDecompiler implements IBytecodeProvider, IResultSaver {
+ 
+   @SuppressWarnings("UseOfSystemOutOrSystemErr")
+   public static void main(String[] args) {
++
++    List<String> params = new ArrayList<String>();
++
++    for(int x = 0; x < args.length; x++) {
++      System.out.println("debug: current arg is " + args[x] + ", == -cfg is " + (args[x].startsWith("-cfg") ? "true" : "false"));
++      if(args[x].startsWith("-cfg")) {
++        System.out.println("info: Reading cfg option.");
++        String path = null;
++        if(args[x].startsWith("-cfg=")) {
++          System.out.println("info: Cfg path specified.");
++          path = args[x].substring(5);
++        } else if (args.length > x+1) {
++          System.out.println("info: cfg file given: " + args[x + 1]);
++          path = args[++x];
++        } else {
++          System.out.println("error: Must specify a file when using -cfg.");
++          return;
++        }
++
++        Path file = Paths.get(path);
++        if(!Files.exists(file)) {
++          System.out.println("error: missing config '" + path + "'");
++          return;
++        }
++
++        try(Stream<String> stream = Files.lines(file)) {
++          stream.forEach(params::add);
++        } catch (IOException e) {
++          System.out.println("error: failed to read config file '" + path + "'");
++          throw new RuntimeException(e);
++        }
++      } else {
++        params.add(args[x]);
++      }
++    }
++
++    args = params.toArray(new String[params.size()]);
++
+     if (args.length < 2) {
+       System.out.println(
+         "Usage: java -jar fernflower.jar [-<option>=<value>]* [<source>]+ <destination>\n" +
