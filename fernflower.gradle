@@ -7,10 +7,11 @@ archivesBaseName = 'forgeflower'
 ext {
     CHANGELOG = rootProject.file('build/changelog.txt')
 }
-
+ 
 sourceSets {
     main.java.srcDirs = ['src']
     test.java.srcDirs = ['test']
+    java9.java.srcDirs = ['java9']
 }
 
 repositories {
@@ -19,26 +20,50 @@ repositories {
 }
 
 dependencies {
-    testCompile 'junit:junit:4.+'
-    testCompile 'org.hamcrest:hamcrest-core:1.3'
-    testCompile 'org.assertj:assertj-core:3.+'
-    testCompile 'com.google.code.gson:gson:2.8.0'
+    // The Java9 code depends on (can see) the "main" source set
+    java9Implementation sourceSets.main.output
+
+    testImplementation 'junit:junit:4.+'
+    testImplementation 'org.hamcrest:hamcrest-core:1.3'
+    testImplementation 'org.assertj:assertj-core:3.+'
+    testImplementation 'com.google.code.gson:gson:2.8.0'
 }
 
 java.toolchain {
     languageVersion = JavaLanguageVersion.of(8)
 }
 
-jar {
-    manifest {
-        attributes('Main-Class' : 'org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler')
+// Default all standard Java compile tasks to Java 8
+// We'll specify Java 9 only for the java9 compile task
+tasks.withType(JavaCompile) {
+    options.deprecation = true
+}
+
+compileJava9Java {
+    javaCompiler = javaToolchains.compilerFor {
+        languageVersion = JavaLanguageVersion.of(9)
     }
 }
 
-// There's an issue where deleting the built JARs/code edits leaves the jar tasks being falsely UP-TO-DATE
-// This forces the jar tasks to always happen (which should only happen when building)
-tasks.withType(Jar) {
-    outputs.upToDateWhen { false }
+eclipse {
+    classpath {
+        sourceSets -= [sourceSets.java9]
+    }
+    project {
+        name 'ForgeFlower'
+    }
+}
+
+jar {
+    into('META-INF/versions/9') {
+        from sourceSets.java9.output
+    }
+    manifest {
+        attributes(
+            'Main-Class' : 'org.jetbrains.java.decompiler.main.decompiler.ConsoleDecompiler',
+            'Multi-Release': 'true'
+        )
+    }
 }
 
 task sourceJar(type: Jar) {
@@ -67,7 +92,7 @@ publishing {
                 packaging = 'jar'
                 description = 'Fernflower from https://github.com/JetBrains/intellij-community as standalone library, With Forges Modifications'
                 url = 'https://github.com/MinecraftForge/ForgeFlower'
-
+                
                 scm {
                     url = 'https://github.com/MinecraftForge/ForgeFlower'
                     connection = 'scm:git:git://github.com/MinecraftForge/ForgeFlower.git'
@@ -90,12 +115,15 @@ publishing {
     }
     repositories {
         maven {
-            if (project.hasProperty('mavenPassword')) {
-                credentials {
-                    username = project.properties.mavenUser
-                    password = project.properties.mavenPassword
+            if (System.env.MAVEN_USER) {
+                url 'https://maven.minecraftforge.net/'
+                authentication {
+                    basic(BasicAuthentication)
                 }
-                url 'http://files.minecraftforge.net/maven/manage/upload'
+                credentials {
+                    username = System.env.MAVEN_USER ?: 'not'
+                    password = System.env.MAVEN_PASSWORD ?: 'set'
+                }
             } else {
                 url 'file://' + rootProject.file('repo').getAbsolutePath()
             }
