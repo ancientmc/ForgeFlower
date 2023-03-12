@@ -20,7 +20,7 @@ patches {
 
 allprojects {
     group = 'net.minecraftforge' //put it under us for now, because this is a unofficial mirrior
-    version = '0.2.2'
+    version = '1.0-am'
 
     tasks.withType(JavaCompile) {
         options.encoding = 'utf-8'
@@ -58,3 +58,4 @@ project(':ForgeFlower9') {
 
 if (tasks.findByName('eclipse') == null) tasks.create('eclipse')
 tasks.findByName('eclipse').dependsOn('applyPatches', 'ForgeFlower:eclipse', 'ForgeFlower9:eclipse')
+
