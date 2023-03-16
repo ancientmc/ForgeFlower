@@ -1,0 +1,81 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: moist-mason <67809772+moist-mason@users.noreply.github.com>
+Date: Thu, 16 Mar 2023 14:06:11 -0500
+Subject: [PATCH] Add spaces after if declaration and inside ternaries
+
+
+diff --git a/src/org/jetbrains/java/decompiler/modules/decompiler/exps/FunctionExprent.java b/src/org/jetbrains/java/decompiler/modules/decompiler/exps/FunctionExprent.java
+index e8edbd5f0cfa8c61b3af2a1b1b2256fbe6a7aa00..59dbbd9aa2b0df126d75d00d8b1305fd89bf3c6d 100644
+--- a/src/org/jetbrains/java/decompiler/modules/decompiler/exps/FunctionExprent.java
++++ b/src/org/jetbrains/java/decompiler/modules/decompiler/exps/FunctionExprent.java
+@@ -485,9 +485,9 @@ public class FunctionExprent extends Exprent {
+         return res.append(".length");
+       case FUNCTION_IIF:
+         return wrapOperandString(lstOperands.get(0), true, indent, tracer)
+-          .append("?")
++          .append(" ? ")
+           .append(wrapOperandString(lstOperands.get(1), true, indent, tracer))
+-          .append(":")
++          .append(" : ")
+           .append(wrapOperandString(lstOperands.get(2), true, indent, tracer));
+       case FUNCTION_IPP:
+         return wrapOperandString(lstOperands.get(0), true, indent, tracer).append("++");
+@@ -501,27 +501,27 @@ public class FunctionExprent extends Exprent {
+         return wrapOperandString(lstOperands.get(0), true, indent, tracer).append(" instanceof ").append(wrapOperandString(lstOperands.get(1), true, indent, tracer));
+       case FUNCTION_LCMP: // shouldn't appear in the final code
+         return wrapOperandString(lstOperands.get(0), true, indent, tracer).prepend("__lcmp__(")
+-                 .append(",")
++                 .append(", ")
+                  .append(wrapOperandString(lstOperands.get(1), true, indent, tracer))
+                  .append(")");
+       case FUNCTION_FCMPL: // shouldn't appear in the final code
+         return wrapOperandString(lstOperands.get(0), true, indent, tracer).prepend("__fcmpl__(")
+-                 .append(",")
++                 .append(", ")
+                  .append(wrapOperandString(lstOperands.get(1), true, indent, tracer))
+                  .append(")");
+       case FUNCTION_FCMPG: // shouldn't appear in the final code
+         return wrapOperandString(lstOperands.get(0), true, indent, tracer).prepend("__fcmpg__(")
+-                 .append(",")
++                 .append(", ")
+                  .append(wrapOperandString(lstOperands.get(1), true, indent, tracer))
+                  .append(")");
+       case FUNCTION_DCMPL: // shouldn't appear in the final code
+         return wrapOperandString(lstOperands.get(0), true, indent, tracer).prepend("__dcmpl__(")
+-                 .append(",")
++                 .append(", ")
+                  .append(wrapOperandString(lstOperands.get(1), true, indent, tracer))
+                  .append(")");
+       case FUNCTION_DCMPG: // shouldn't appear in the final code
+         return wrapOperandString(lstOperands.get(0), true, indent, tracer).prepend("__dcmpg__(")
+-                 .append(",")
++                 .append(", ")
+                  .append(wrapOperandString(lstOperands.get(1), true, indent, tracer))
+                  .append(")");
+     }
+diff --git a/src/org/jetbrains/java/decompiler/modules/decompiler/exps/IfExprent.java b/src/org/jetbrains/java/decompiler/modules/decompiler/exps/IfExprent.java
+index 84ac9e7bcdd6b05fd1d39c12c34d6dfd281a4f64..00f3522f71f01f90757053d0c524ef616d3d2702 100644
+--- a/src/org/jetbrains/java/decompiler/modules/decompiler/exps/IfExprent.java
++++ b/src/org/jetbrains/java/decompiler/modules/decompiler/exps/IfExprent.java
+@@ -115,7 +115,7 @@ public class IfExprent extends Exprent {
+   @Override
+   public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
+     tracer.addMapping(bytecode);
+-    return condition.toJava(indent, tracer).enclose("if(", ")");
++    return condition.toJava(indent, tracer).enclose("if (", ")");
+   }
+ 
+   @Override
+diff --git a/src/org/jetbrains/java/decompiler/modules/decompiler/stats/CatchAllStatement.java b/src/org/jetbrains/java/decompiler/modules/decompiler/stats/CatchAllStatement.java
+index 34dfa85eb134ed1bb59a3bee9de0fbb0f35b392a..94dc8fdcb6ebf768adf84e5cf80fbf41dd19ed4e 100644
+--- a/src/org/jetbrains/java/decompiler/modules/decompiler/stats/CatchAllStatement.java
++++ b/src/org/jetbrains/java/decompiler/modules/decompiler/stats/CatchAllStatement.java
+@@ -144,7 +144,7 @@ public class CatchAllStatement extends Statement {
+     tracer.incrementCurrentSourceLine();
+ 
+     if (monitor != null) {
+-      buf.appendIndent(indent+1).append("if(").append(monitor.toJava(indent, tracer)).append(") {").appendLineSeparator();
++      buf.appendIndent(indent+1).append("if (").append(monitor.toJava(indent, tracer)).append(") {").appendLineSeparator();
+       tracer.incrementCurrentSourceLine();
+     }
+ 
