@@ -20,7 +20,7 @@ patches {
 
 allprojects {
     group = 'net.minecraftforge' //put it under us for now, because this is a unofficial mirrior
-    version = '1.0-am'
+    version = '1.0.1-am'
 
     tasks.withType(JavaCompile) {
         options.encoding = 'utf-8'
