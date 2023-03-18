@@ -1,0 +1,198 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: moist-mason <67809772+moist-mason@users.noreply.github.com>
+Date: Sat, 18 Mar 2023 18:19:07 -0500
+Subject: [PATCH] Add spaces inside statement declarations and ternaries
+
+
+diff --git a/src/org/jetbrains/java/decompiler/modules/decompiler/ExprProcessor.java b/src/org/jetbrains/java/decompiler/modules/decompiler/ExprProcessor.java
+index c83277288453cb286014d926dfcb2e1b5198e338..fde05497d47a01f0c6ce4658554bd20ae360b613 100644
+--- a/src/org/jetbrains/java/decompiler/modules/decompiler/ExprProcessor.java
++++ b/src/org/jetbrains/java/decompiler/modules/decompiler/ExprProcessor.java
+@@ -925,10 +925,10 @@ public class ExprProcessor implements CodeConstants {
+ 
+     if (cast) {
+       if (exprent.getPrecedence() >= FunctionExprent.getPrecedence(FunctionExprent.FUNCTION_CAST)) {
+-        res.enclose("(", ")");
++        res.enclose("(", ") ");
+       }
+ 
+-      res.prepend("(" + getCastTypeName(leftType) + ")");
++      res.prepend("(" + getCastTypeName(leftType) + ") ");
+     }
+ 
+     buffer.append(res);
+diff --git a/src/org/jetbrains/java/decompiler/modules/decompiler/exps/FunctionExprent.java b/src/org/jetbrains/java/decompiler/modules/decompiler/exps/FunctionExprent.java
+index e8edbd5f0cfa8c61b3af2a1b1b2256fbe6a7aa00..2f8c27868b3658838ade0d12748e5e7038f457e7 100644
+--- a/src/org/jetbrains/java/decompiler/modules/decompiler/exps/FunctionExprent.java
++++ b/src/org/jetbrains/java/decompiler/modules/decompiler/exps/FunctionExprent.java
+@@ -473,7 +473,7 @@ public class FunctionExprent extends Exprent {
+       case FUNCTION_NEG:
+         return wrapOperandString(lstOperands.get(0), true, indent, tracer).prepend("-");
+       case FUNCTION_CAST:
+-        return lstOperands.get(1).toJava(indent, tracer).enclose("(", ")").append(wrapOperandString(lstOperands.get(0), true, indent, tracer));
++        return lstOperands.get(1).toJava(indent, tracer).enclose("(", ") ").append(wrapOperandString(lstOperands.get(0), true, indent, tracer));
+       case FUNCTION_ARRAY_LENGTH:
+         Exprent arr = lstOperands.get(0);
+ 
+@@ -485,9 +485,9 @@ public class FunctionExprent extends Exprent {
+         return res.append(".length");
+       case FUNCTION_IIF:
+         return wrapOperandString(lstOperands.get(0), true, indent, tracer)
+-          .append("?")
++          .append(" ? ")
+           .append(wrapOperandString(lstOperands.get(1), true, indent, tracer))
+-          .append(":")
++          .append(" : ")
+           .append(wrapOperandString(lstOperands.get(2), true, indent, tracer));
+       case FUNCTION_IPP:
+         return wrapOperandString(lstOperands.get(0), true, indent, tracer).append("++");
+@@ -501,34 +501,34 @@ public class FunctionExprent extends Exprent {
+         return wrapOperandString(lstOperands.get(0), true, indent, tracer).append(" instanceof ").append(wrapOperandString(lstOperands.get(1), true, indent, tracer));
+       case FUNCTION_LCMP: // shouldn't appear in the final code
+         return wrapOperandString(lstOperands.get(0), true, indent, tracer).prepend("__lcmp__(")
+-                 .append(",")
++                 .append(", ")
+                  .append(wrapOperandString(lstOperands.get(1), true, indent, tracer))
+                  .append(")");
+       case FUNCTION_FCMPL: // shouldn't appear in the final code
+         return wrapOperandString(lstOperands.get(0), true, indent, tracer).prepend("__fcmpl__(")
+-                 .append(",")
++                 .append(", ")
+                  .append(wrapOperandString(lstOperands.get(1), true, indent, tracer))
+                  .append(")");
+       case FUNCTION_FCMPG: // shouldn't appear in the final code
+         return wrapOperandString(lstOperands.get(0), true, indent, tracer).prepend("__fcmpg__(")
+-                 .append(",")
++                 .append(", ")
+                  .append(wrapOperandString(lstOperands.get(1), true, indent, tracer))
+                  .append(")");
+       case FUNCTION_DCMPL: // shouldn't appear in the final code
+         return wrapOperandString(lstOperands.get(0), true, indent, tracer).prepend("__dcmpl__(")
+-                 .append(",")
++                 .append(", ")
+                  .append(wrapOperandString(lstOperands.get(1), true, indent, tracer))
+                  .append(")");
+       case FUNCTION_DCMPG: // shouldn't appear in the final code
+         return wrapOperandString(lstOperands.get(0), true, indent, tracer).prepend("__dcmpg__(")
+-                 .append(",")
++                 .append(", ")
+                  .append(wrapOperandString(lstOperands.get(1), true, indent, tracer))
+                  .append(")");
+     }
+ 
+     if (funcType <= FUNCTION_I2S) {
+       return wrapOperandString(lstOperands.get(0), true, indent, tracer).prepend("(" + ExprProcessor.getTypeName(
+-        TYPES[funcType - FUNCTION_I2L]) + ")");
++        TYPES[funcType - FUNCTION_I2L]) + ") ");
+     }
+ 
+     //		return "<unknown function>";
+diff --git a/src/org/jetbrains/java/decompiler/modules/decompiler/exps/IfExprent.java b/src/org/jetbrains/java/decompiler/modules/decompiler/exps/IfExprent.java
+index 84ac9e7bcdd6b05fd1d39c12c34d6dfd281a4f64..00f3522f71f01f90757053d0c524ef616d3d2702 100644
+--- a/src/org/jetbrains/java/decompiler/modules/decompiler/exps/IfExprent.java
++++ b/src/org/jetbrains/java/decompiler/modules/decompiler/exps/IfExprent.java
+@@ -115,7 +115,7 @@ public class IfExprent extends Exprent {
+   @Override
+   public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
+     tracer.addMapping(bytecode);
+-    return condition.toJava(indent, tracer).enclose("if(", ")");
++    return condition.toJava(indent, tracer).enclose("if (", ")");
+   }
+ 
+   @Override
+diff --git a/src/org/jetbrains/java/decompiler/modules/decompiler/exps/MonitorExprent.java b/src/org/jetbrains/java/decompiler/modules/decompiler/exps/MonitorExprent.java
+index bd9207fe85915240d5626e2be88923fc08f042d1..8068424221a9aea9331fe3a2c6105586e74181cd 100644
+--- a/src/org/jetbrains/java/decompiler/modules/decompiler/exps/MonitorExprent.java
++++ b/src/org/jetbrains/java/decompiler/modules/decompiler/exps/MonitorExprent.java
+@@ -56,7 +56,7 @@ public class MonitorExprent extends Exprent {
+     tracer.addMapping(bytecode);
+ 
+     if (monType == MONITOR_ENTER) {
+-      return value.toJava(indent, tracer).enclose("synchronized(", ")");
++      return value.toJava(indent, tracer).enclose("synchronized (", ")");
+     }
+     else {
+       return new TextBuffer();
+diff --git a/src/org/jetbrains/java/decompiler/modules/decompiler/exps/SwitchExprent.java b/src/org/jetbrains/java/decompiler/modules/decompiler/exps/SwitchExprent.java
+index c2065c1673f3a86cee9c2e707d328becb3d90100..e0bba1b1ab0adb09fd18df3c8da160e3f34fc022 100644
+--- a/src/org/jetbrains/java/decompiler/modules/decompiler/exps/SwitchExprent.java
++++ b/src/org/jetbrains/java/decompiler/modules/decompiler/exps/SwitchExprent.java
+@@ -88,7 +88,7 @@ public class SwitchExprent extends Exprent {
+   @Override
+   public TextBuffer toJava(int indent, BytecodeMappingTracer tracer) {
+     tracer.addMapping(bytecode);
+-    return value.toJava(indent, tracer).enclose("switch(", ")");
++    return value.toJava(indent, tracer).enclose("switch (", ")");
+   }
+ 
+   @Override
+diff --git a/src/org/jetbrains/java/decompiler/modules/decompiler/stats/CatchAllStatement.java b/src/org/jetbrains/java/decompiler/modules/decompiler/stats/CatchAllStatement.java
+index 34dfa85eb134ed1bb59a3bee9de0fbb0f35b392a..94dc8fdcb6ebf768adf84e5cf80fbf41dd19ed4e 100644
+--- a/src/org/jetbrains/java/decompiler/modules/decompiler/stats/CatchAllStatement.java
++++ b/src/org/jetbrains/java/decompiler/modules/decompiler/stats/CatchAllStatement.java
+@@ -144,7 +144,7 @@ public class CatchAllStatement extends Statement {
+     tracer.incrementCurrentSourceLine();
+ 
+     if (monitor != null) {
+-      buf.appendIndent(indent+1).append("if(").append(monitor.toJava(indent, tracer)).append(") {").appendLineSeparator();
++      buf.appendIndent(indent+1).append("if (").append(monitor.toJava(indent, tracer)).append(") {").appendLineSeparator();
+       tracer.incrementCurrentSourceLine();
+     }
+ 
+diff --git a/src/org/jetbrains/java/decompiler/modules/decompiler/stats/DoStatement.java b/src/org/jetbrains/java/decompiler/modules/decompiler/stats/DoStatement.java
+index 6636d1dab67c0ad87b98fd6b9ebfeca708fd0139..6e4e2d7e1d86669b4d95e81e028d721ded1ecdaf 100644
+--- a/src/org/jetbrains/java/decompiler/modules/decompiler/stats/DoStatement.java
++++ b/src/org/jetbrains/java/decompiler/modules/decompiler/stats/DoStatement.java
+@@ -106,7 +106,7 @@ public class DoStatement extends Statement {
+ 
+     switch (looptype) {
+       case LOOP_DO:
+-        buf.appendIndent(indent).append("while(true) {").appendLineSeparator();
++        buf.appendIndent(indent).append("while (true) {").appendLineSeparator();
+         tracer.incrementCurrentSourceLine();
+         buf.append(ExprProcessor.jmpWrapper(first, indent + 1, true, tracer));
+         buf.appendIndent(indent).append("}").appendLineSeparator();
+@@ -116,18 +116,18 @@ public class DoStatement extends Statement {
+         buf.appendIndent(indent).append("do {").appendLineSeparator();
+         tracer.incrementCurrentSourceLine();
+         buf.append(ExprProcessor.jmpWrapper(first, indent + 1, true, tracer));
+-        buf.appendIndent(indent).append("} while(").append(conditionExprent.get(0).toJava(indent, tracer)).append(");").appendLineSeparator();
++        buf.appendIndent(indent).append("} while (").append(conditionExprent.get(0).toJava(indent, tracer)).append(");").appendLineSeparator();
+         tracer.incrementCurrentSourceLine();
+         break;
+       case LOOP_WHILE:
+-        buf.appendIndent(indent).append("while(").append(conditionExprent.get(0).toJava(indent, tracer)).append(") {").appendLineSeparator();
++        buf.appendIndent(indent).append("while (").append(conditionExprent.get(0).toJava(indent, tracer)).append(") {").appendLineSeparator();
+         tracer.incrementCurrentSourceLine();
+         buf.append(ExprProcessor.jmpWrapper(first, indent + 1, true, tracer));
+         buf.appendIndent(indent).append("}").appendLineSeparator();
+         tracer.incrementCurrentSourceLine();
+         break;
+       case LOOP_FOR:
+-        buf.appendIndent(indent).append("for(");
++        buf.appendIndent(indent).append("for (");
+         if (initExprent.get(0) != null) {
+           buf.append(initExprent.get(0).toJava(indent, tracer));
+         }
+@@ -140,7 +140,7 @@ public class DoStatement extends Statement {
+         tracer.incrementCurrentSourceLine();
+         break;
+       case LOOP_FOREACH:
+-        buf.appendIndent(indent).append("for(").append(initExprent.get(0).toJava(indent, tracer));
++        buf.appendIndent(indent).append("for (").append(initExprent.get(0).toJava(indent, tracer));
+         buf.append(" : ").append(incExprent.get(0).toJava(indent, tracer)).append(") {").appendLineSeparator();
+         tracer.incrementCurrentSourceLine();
+         buf.append(ExprProcessor.jmpWrapper(first, indent + 1, true, tracer));
+diff --git a/src/org/jetbrains/java/decompiler/modules/decompiler/stats/SwitchStatement.java b/src/org/jetbrains/java/decompiler/modules/decompiler/stats/SwitchStatement.java
+index 1624ce778d827671f916cc822335febaa1df60cf..8fe73d1c0215991cb2a4cb0e67a334411622de96 100644
+--- a/src/org/jetbrains/java/decompiler/modules/decompiler/stats/SwitchStatement.java
++++ b/src/org/jetbrains/java/decompiler/modules/decompiler/stats/SwitchStatement.java
+@@ -207,7 +207,7 @@ public class SwitchStatement extends Statement {
+     tracer.addMapping(swtch.bytecode);
+     tracer.addMapping(field.bytecode);
+     tracer.addMapping(invoc.bytecode);
+-    buf.appendIndent(indent).append((invoc.getInstance().toJava(indent, tracer).enclose("switch(", ")"))).append(" {").appendLineSeparator();
++    buf.appendIndent(indent).append((invoc.getInstance().toJava(indent, tracer).enclose("switch (", ")"))).append(" {").appendLineSeparator();
+     return ret;
+   }
+ 
