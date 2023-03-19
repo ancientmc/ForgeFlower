@@ -1,0 +1,80 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: moist-mason <67809772+moist-mason@users.noreply.github.com>
+Date: Sun, 19 Mar 2023 13:44:21 -0500
+Subject: [PATCH] Remove parantheses in constructor invocations and add spaces
+ in array blocks
+
+
+diff --git a/src/org/jetbrains/java/decompiler/modules/decompiler/exps/InvocationExprent.java b/src/org/jetbrains/java/decompiler/modules/decompiler/exps/InvocationExprent.java
+index 95b3c37273c1460c017fc7b4d94b52d2feea6e27..ec0a69ae86f7b031a670e6d3da1187c68fea65c1 100644
+--- a/src/org/jetbrains/java/decompiler/modules/decompiler/exps/InvocationExprent.java
++++ b/src/org/jetbrains/java/decompiler/modules/decompiler/exps/InvocationExprent.java
+@@ -313,7 +313,7 @@ public class InvocationExprent extends Exprent {
+             }
+             buf.append(res).append(")");
+           }
+-          else if (instance.getPrecedence() > getPrecedence()) {
++          else if (instance.getPrecedence() > getPrecedence() && !canSkipParenEnclose(instance)) {
+             buf.append("(").append(res).append(")");
+           }
+           else {
+@@ -453,6 +453,20 @@ public class InvocationExprent extends Exprent {
+     return buf;
+   }
+ 
++  private boolean canSkipParenEnclose(Exprent instance) {
++    if (instance.type != Exprent.EXPRENT_NEW) {
++      return false;
++    }
++
++    NewExprent newExpr = (NewExprent) instance;
++
++    if (!newExpr.isAnonymous() && !newExpr.isLambda()) {
++      return this.functype == TYP_GENERAL;
++    }
++
++    return false;
++  }
++
+   private List<StructMethod> getMatchedDescriptors() {
+     List<StructMethod> matches = new ArrayList<StructMethod>();
+ 
+diff --git a/src/org/jetbrains/java/decompiler/modules/decompiler/exps/NewExprent.java b/src/org/jetbrains/java/decompiler/modules/decompiler/exps/NewExprent.java
+index e8376e074749958d779a85f69dde0c7ff8656f87..327ed25d770fb1cb200ccbb83a070222a0881218 100644
+--- a/src/org/jetbrains/java/decompiler/modules/decompiler/exps/NewExprent.java
++++ b/src/org/jetbrains/java/decompiler/modules/decompiler/exps/NewExprent.java
+@@ -284,14 +284,14 @@ public class NewExprent extends Exprent {
+     }
+     else if (directArrayInit) {
+       VarType leftType = newType.decreaseArrayDim();
+-      buf.append("{");
++      buf.append("{ ");
+       for (int i = 0; i < lstArrayElements.size(); i++) {
+         if (i > 0) {
+           buf.append(", ");
+         }
+         ExprProcessor.getCastedExprent(lstArrayElements.get(i), leftType, buf, indent, false, tracer);
+       }
+-      buf.append("}");
++      buf.append(" }");
+     }
+     else {
+       if (newType.arrayDim == 0) {
+@@ -393,7 +393,7 @@ public class NewExprent extends Exprent {
+           }
+ 
+           VarType leftType = newType.decreaseArrayDim();
+-          buf.append("{");
++          buf.append("{ ");
+           for (int i = 0; i < lstArrayElements.size(); i++) {
+             if (i > 0) {
+               buf.append(", ");
+@@ -403,7 +403,7 @@ public class NewExprent extends Exprent {
+ 
+             buf.append(buff);
+           }
+-          buf.append("}");
++          buf.append(" }");
+         }
+       }
+     }
